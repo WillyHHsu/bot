@@ -61,6 +61,7 @@ def define(term, lang='en-US'):
         requests.exceptions.TooManyRedirects,
         requests.exceptions.RequestException
     ) as e:
+        logger.error(f"Erro: {e}")
         return str(e)
 
 
