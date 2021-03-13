@@ -50,14 +50,17 @@ def define(term, lang='en-US'):
         )
         return f"{str.capitalize(term)}:\n{definitions}"
     except (
-        requests.exceptions.Timeout,
-        requests.exceptions.TooManyRedirects,
-        requests.exceptions.RequestException,
         IndexError,  # Não retornou o formato esperado
         KeyError,   # ...
         TypeError   # ...
+    ):
+        return 'Falhei misera D:'
+    except (
+        requests.exceptions.Timeout,
+        requests.exceptions.TooManyRedirects,
+        requests.exceptions.RequestException
     ) as e:
-        return 'Falhei misera D:', e, term, lang
+        return str(e)
 
 
 def defina(update, context):
