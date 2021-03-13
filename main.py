@@ -37,7 +37,8 @@ dispatcher = updater.dispatcher
 
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
 
 
 def define(term, lang='en-US'):
@@ -76,13 +77,11 @@ def meaning(update, context):
         text=define(' '.join(context.args))
     )
 
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
 
-defina_handler = CommandHandler('defina', defina)
-dispatcher.add_handler(defina_handler)
-
-meaning_handler = CommandHandler('meaning', meaning)
-dispatcher.add_handler(meaning_handler)
-    
-updater.start_polling()
+if __name__ == '__main__':
+    logger.info("Starting bot")
+    updater = Updater(TOKEN)
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('defina', defina))
+    dispatcher.add_handler(CommandHandler('meaning', meaning))
+    run(updater)
