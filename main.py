@@ -4,32 +4,17 @@ import requests
 import logging
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
-from random import choice
 from dotenv import load_dotenv
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 logger = logging.getLogger()
 
 MODE = os.getenv("MODE", 'dev')
 TOKEN = os.getenv("TOKEN")
-if MODE == "dev":
-    def run(updater):
-        updater.start_polling()
-elif MODE == "prod":
-    def run(updater):
-        PORT = int(os.environ.get("PORT", "8443"))
-        HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
-        updater.start_webhook(listen="0.0.0.0",
-                              port=PORT,
-                              url_path=TOKEN)
-        updater.bot.set_webhook(
-            "https://{}.herokuapp.com/{}".format(HEROKU_APP_NAME, TOKEN))
-else:
-    logger.error("No MODE specified!")
-    sys.exit(1)
 
 updater = Updater(token=TOKEN, use_context=True)
 
@@ -38,7 +23,9 @@ dispatcher = updater.dispatcher
 
 def start(update, context):
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+        chat_id=update.effective_chat.id,
+        text="I will try to explain all the things in the universe."
+    )
 
 
 def define(term, lang='en-US'):
@@ -49,6 +36,7 @@ def define(term, lang='en-US'):
             [f'{i[0]+1}º: {i[1]}' for i in enumerate(
                 i['definition'] for i in req[0]['meanings'][0]['definitions'])]
         )
+        logger.info(f"define {term} with lang {lang}")
         return f"{str.capitalize(term)}:\n{definitions}"
     except (
         IndexError,  # Não retornou o formato esperado
@@ -80,6 +68,22 @@ def meaning(update, context):
 
 
 if __name__ == '__main__':
+    if MODE == "dev":
+        def run(updater):
+            updater.start_polling()
+    elif MODE == "prod":
+        def run(updater):
+            PORT = int(os.environ.get("PORT", "8443"))
+            HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
+            updater.start_webhook(listen="0.0.0.0",
+                                  port=PORT,
+                                  url_path=TOKEN)
+            updater.bot.set_webhook(
+                f"https://{HEROKU_APP_NAME}.herokuapp.com/{TOKEN}")
+            updater.idle()
+    else:
+        logger.error("No MODE specified!")
+        sys.exit(1)
     logger.info("Starting bot")
     updater = Updater(TOKEN)
     dispatcher.add_handler(CommandHandler('start', start))
