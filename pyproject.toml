@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "telegram-bot"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+python-telegram-bot = "^13.3"
+requests = "^2.25.1"
+python-dotenv = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+ipython = "^7.21.0"
+autopep8 = "^1.5.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
