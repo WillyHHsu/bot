@@ -73,14 +73,16 @@ def define(term, lang='en-US'):
 def defina(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=define(' '.join(context.args), lang='pt-BR')
+        text=define(' '.join(context.args),
+                    lang='pt-BR') or "Não sei explicar."
     )
 
 
 def meaning(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=define(' '.join(context.args))
+        text=define(' '.join(context.args) or
+                    "I do not know how to explain.")
     )
 
 
