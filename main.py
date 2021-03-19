@@ -81,8 +81,7 @@ def defina(update, context):
 def meaning(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=define(' '.join(context.args) or
-                    "I do not know how to explain.")
+        text=define(' '.join(context.args)) or "I do not know how to explain.",
     )
 
 
