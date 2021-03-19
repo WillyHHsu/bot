@@ -2,8 +2,8 @@ import os
 import sys
 import requests
 import logging
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
+from telegram import ParseMode, Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -54,21 +54,23 @@ Get a explain about `term`.
 Responde a mensagem com a definição do termo
 '''
     update.message.reply_text(text=help_text, parse_mode=ParseMode.MARKDOWN)
-def define(term, lang='en-US'):
+
+
+def get_define(term, lang='en-US'):
+    logger.info(f"define {term} with lang {lang}")
     try:
         req = requests.get(
             f"https://api.dictionaryapi.dev/api/v2/entries/{lang}/{term}").json()
         definitions = "\n".join(
-            [f'{i[0]+1}º: {i[1]}' for i in enumerate(
+            [f'*{i[0]+1}º - * {i[1]}' for i in enumerate(
                 i['definition'] for i in req[0]['meanings'][0]['definitions'])]
         )
-        logger.info(f"define {term} with lang {lang}")
-        return f"{str.capitalize(term)}:\n{definitions}"
+        return f"_{str.capitalize(term)}_:\n\n{definitions}"
     except (
-        IndexError,  # Não retornou o formato esperado
-        KeyError,   # ...
-        TypeError   # ...
-    ):
+        IndexError,
+        KeyError,
+        TypeError
+    ):   # Não retornou o formato esperado
         return False
     except (
         requests.exceptions.Timeout,
@@ -79,24 +81,27 @@ def define(term, lang='en-US'):
         return str(e)
 
 
+def define(update, context, not_found_msg="I do not know how to explain."):
+    term, *lang = ' '.join(context.args).split(',')
+    text = get_define(term, lang[0].strip()
+                      if lang else 'en-US') or not_found_msg
+    message = update.effective_message
+    message.reply_text(
+        text,
+        reply_to_message_id=message["message_id"],
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+
 def defina(update, context):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=define(' '.join(context.args),
-                    lang='pt-BR') or "Não sei explicar."
-    )
-
-
-def meaning(update, context):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=define(' '.join(context.args)) or "I do not know how to explain.",
-    )
+    context.args.append(',pt-BR')
+    define(update, context, not_found_msg="Não sei explicar")
 
 
 if __name__ == '__main__':
     logger.info("Starting bot")
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('help', help_command))
+    dispatcher.add_handler(CommandHandler('define', define))
     dispatcher.add_handler(CommandHandler('defina', defina))
-    dispatcher.add_handler(CommandHandler('meaning', meaning))
     run(updater)
