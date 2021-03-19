@@ -48,7 +48,7 @@ def start(update, context):
 def help_command(update: Update, context: CallbackContext) -> None:
     help_text = '''
 /define [term, lang=en-US]
-Get a explain about `term`.
+Get definition about a term.
 
 /defina [termo, lang=pt-BR]
 Responde a mensagem com a definição do termo
