@@ -45,6 +45,15 @@ def start(update, context):
     )
 
 
+def help_command(update: Update, context: CallbackContext) -> None:
+    help_text = '''
+/define [term, lang=en-US]
+Get a explain about `term`.
+
+/defina [termo, lang=pt-BR]
+Responde a mensagem com a definição do termo
+'''
+    update.message.reply_text(text=help_text, parse_mode=ParseMode.MARKDOWN)
 def define(term, lang='en-US'):
     try:
         req = requests.get(
