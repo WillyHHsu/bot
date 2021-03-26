@@ -18,10 +18,6 @@ TOKEN = os.getenv("TOKEN")
 PORT = int(os.environ.get("PORT", "8443"))
 HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
 
-updater = Updater(token=TOKEN, use_context=True)
-
-dispatcher = updater.dispatcher
-
 
 def run(updater):
     if MODE == "dev":
@@ -47,11 +43,11 @@ def start(update, context):
 
 def help_command(update: Update, context: CallbackContext) -> None:
     help_text = '''
-/define [term, lang=en-US]
-Get definition about a term.
+/define <term>, <lang [default: en-US]>
+Get the definition about a term in the language provided, default is English, 
 
-/defina [termo, lang=pt-BR]
-Responde a mensagem com a definição do termo
+/defina <termo>, <língua [padrão: pt-BR]>
+Responde a mensagem com a definição do termo na língua especificada, sendo o padrão português
 '''
     update.message.reply_text(text=help_text, parse_mode=ParseMode.MARKDOWN)
 
@@ -100,6 +96,8 @@ def defina(update, context):
 
 if __name__ == '__main__':
     logger.info("Starting bot")
+    updater = Updater(token=TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', help_command))
     dispatcher.add_handler(CommandHandler('define', define))
